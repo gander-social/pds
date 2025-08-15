@@ -243,19 +243,28 @@ INSTALLER_MESSAGE
   # Install Docker
   #
   if ! docker version >/dev/null 2>&1; then
-    echo "* Installing Docker"
-    mkdir --parents /etc/apt/keyrings
+#    echo "* Installing Docker"
+#    mkdir --parents /etc/apt/keyrings
+#
+#    # Remove the existing file, if it exists,
+#    # so there's no prompt on a second run.
+#    rm --force /etc/apt/keyrings/docker.gpg
+#    curl --fail --silent --show-error --location "https://download.docker.com/linux/${DISTRIB_ID}/gpg" | \
+#      gpg --dearmor --output /etc/apt/keyrings/docker.gpg
+#
+#    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${DISTRIB_ID} ${DISTRIB_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
+#
+#    apt-get update
+#    apt-get install --yes ${REQUIRED_DOCKER_PACKAGES}
 
-    # Remove the existing file, if it exists,
-    # so there's no prompt on a second run.
-    rm --force /etc/apt/keyrings/docker.gpg
-    curl --fail --silent --show-error --location "https://download.docker.com/linux/${DISTRIB_ID}/gpg" | \
-      gpg --dearmor --output /etc/apt/keyrings/docker.gpg
-
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${DISTRIB_ID} ${DISTRIB_CODENAME} stable" >/etc/apt/sources.list.d/docker.list
-
-    apt-get update
-    apt-get install --yes ${REQUIRED_DOCKER_PACKAGES}
+    rm -f /etc/apt/sources.list.d/docker.list
+    rm -f /etc/apt/keyrings/docker.gpg
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
   fi
 
   #
